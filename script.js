@@ -2,6 +2,7 @@
 const itemForm = document.getElementById("item-form");
 const itemInput = document.getElementById("item-input");
 const itemList = document.getElementById("item-list");
+const clearButton = document.getElementById("clear");
 
 // Create functions to be used
 function addItem (eventObj) {
@@ -47,8 +48,21 @@ function createIcon(classes) {
     return icon; // return the icon!
 }
 
+function removeItem (e) {
+    if (e.target.parentElement.classList.contains("remove-item")){ // this will only remove the item that has a parent whose classes (i.e. its classList) contains the specific class of "remove-item", which is the button/icon in this case.
+    e.target.parentElement.parentElement.remove(); // traversing the DOM to first get to the parent (the button/icon) --> Then to the parent of the button (the list item)
+    }
+}
+
+function clearItems(e) {
+    // while the item list has a first child (i.e. the first list item)
+    while (itemList.firstChild) { 
+        itemList.removeChild(itemList.firstChild); // using remove Child on the ul, passing in the first child  
+    }
+}
+
 
 // Set Up the necessary Event Listeners
-itemForm.addEventListener("submit", addItem);
-// itemInput.addEventListener(,);
-// itemList.addEventListener(,);
+itemForm.addEventListener("submit", addItem); // calling function addItem
+itemList.addEventListener("click", removeItem); // calling function removeItem
+clearButton.addEventListener("click", clearItems); // to clear the items
