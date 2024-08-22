@@ -13,7 +13,7 @@ function displayItems() {
     const itemsFromStorage = getItemsFromStorage();
     itemsFromStorage.forEach((item) => addItemToDOM(item));
 
-    checkUI(); // to make sure we DO display the filter and clear all buttons upon DOM reloading
+    resetUI(); // to make sure we DO display the filter and clear all buttons upon DOM reloading
 }
 
 function onAddItemSubmit(eventObj) {
@@ -26,12 +26,23 @@ function onAddItemSubmit(eventObj) {
         alert("Please add an item!");
         return; // This is so that nothing else can happen after this if statement alert is triggered.
     }
+
+    // Check for if on edit mode or not!
+    if (isEditMode) {
+        const itemToEdit = itemList.querySelector(".edit-mode");
+
+        removeItemFromStorage(itemToEdit.textContent); // This takes in the text of the item
+        itemToEdit.classList.remove("edit-mode"); // Removing the color change
+        itemToEdit.remove(); // Removing the item from the DOM
+        isEditMode = false; // Resetting the global variable to false
+    }
+
     // Create item DOM element
     addItemToDOM(newItem);
     // Add item to local storage
     addItemToStorage(newItem);
 
-    checkUI();
+    resetUI();
 
     itemInput.value = ""; // After all of that creation, clear the value (in the text node);
 }
@@ -120,7 +131,7 @@ function removeItem(item) {
 
         removeItemFromStorage(item.textContent)// Removing the item from Local Storage
 
-        checkUI(); // We must use checkUI after removal is approved because we need to override and account for the changes in items.length
+        resetUI(); // We must use resetUI after removal is approved because we need to override and account for the changes in items.length
     }
 }
 
@@ -138,11 +149,11 @@ function clearItems(e) {
     while (itemList.firstChild) {
         itemList.removeChild(itemList.firstChild); // using remove Child on the ul, passing in the first child  
 
-        checkUI(); // we must use checkUI after removal is approved because we need to override and account for the changes in items.length
+        resetUI(); // we must use resetUI after removal is approved because we need to override and account for the changes in items.length
     }
     // Clearing from LocalStorage
     localStorage.removeItem("items"); // Using "items" key to remove respective key values
-    checkUI();
+    resetUI();
 }
 
 function filterItems(e) {
@@ -160,7 +171,9 @@ function filterItems(e) {
 }
 
 // Creating a function to check UI: goal is to check the states of items
-function checkUI() {
+function resetUI() {
+    itemInput.value = ""; // We want to clear the input when the UI is checked/reset!!!
+
     const items = itemList.querySelectorAll("li"); // remember that when you use .querySelectorAll, you get the node list (similar to an array). 
     // Remember that this is declared within the function so that every time the page is loaded up and the function is called, we intake the array length again as new.
     if (items.length === 0) {
@@ -171,6 +184,11 @@ function checkUI() {
         clearButton.style.display = "block";
         itemFilter.style.display = "block";
     }
+
+    // When we reset, we want edit-mode class to be false (recall that we are referring to Update Item Button's appearance change and list items' text content color change)
+    formButton.innerHTML = '<i class="fa-solid fa-plus"></i> Add Item';
+    formButton.style.backgroundColor = "#333";
+    isEditMode = false; 
 }
 
 // Function to initialize the app. This can be more advantageous and more clean due to the fact that the variables are encapsulated and NOT made accessible to the global scope anymore (prior to moving in lines 145-152 into a function, this block of code was just exposed to the rest of this document).
@@ -182,7 +200,7 @@ function init() {
     itemFilter.addEventListener("input", filterItems); // filter through items
     document.addEventListener("DOMContentLoaded", displayItems);
 
-    checkUI();
+    resetUI();
 }
 
 init();
