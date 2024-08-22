@@ -4,6 +4,8 @@ const itemInput = document.getElementById("item-input");
 const itemList = document.getElementById("item-list");
 const clearButton = document.getElementById("clear");
 const itemFilter = document.getElementById("filter");
+let isEditMode = false; // We want to edit this value later and have a falsy default
+const formButton = itemForm.querySelector("button");
 
 // Create functions to be used
 
@@ -96,6 +98,20 @@ function onClickItem(e) {
     if (e.target.parentElement.classList.contains("remove-item")) {
         removeItem(e.target.parentElement.parentElement); // This will only remove the item that has a parent whose classes (i.e. its classList) contains the specific class of "remove-item", which is the button/icon in this case.
     }
+    else{
+        setItemToEdit(e.target);
+    }
+}
+
+function setItemToEdit(item) {
+    isEditMode = true; // This it the global variable we call in to change when setItemToEdit() function is called
+
+    itemList.querySelectorAll("li").forEach((i) => i.classList.remove("edit-mode")); // Removing the edit-mode class to return original default text color
+    
+    item.classList.add("edit-mode") // Changing appearance during this call to denote that something is happening
+    formButton.innerHTML = '<i class="fa-solid fa-pen"></i>  Update Item';
+    formButton.style.backgroundColor = "#228B22"; // Changing to a lovely green colored button
+    itemInput.value = item.textContent; // Where itemInput is the text INPUT and item is the ELEMENT.
 }
 
 function removeItem(item) {
