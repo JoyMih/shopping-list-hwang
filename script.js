@@ -92,15 +92,29 @@ function getItemsFromStorage() {
     return itemsFromStorage;
 }
 
-function removeItem(e) {
+function onClickItem(e) {
     if (e.target.parentElement.classList.contains("remove-item")) {
-        // this will only remove the item that has a parent whose classes (i.e. its classList) contains the specific class of "remove-item", which is the button/icon in this case.
-        if (window.confirm("Are you sure you want to Delete?")) {
-            e.target.parentElement.parentElement.remove(); // traversing the DOM to first get to the parent (the button/icon) --> Then to the parent of the button (the list item)
-
-            checkUI(); // we must use checkUI after removal is approved because we need to override and account for the changes in items.length
-        }
+        removeItem(e.target.parentElement.parentElement); // This will only remove the item that has a parent whose classes (i.e. its classList) contains the specific class of "remove-item", which is the button/icon in this case.
     }
+}
+
+function removeItem(item) {
+    if (window.confirm("Are you sure you want to Delete?")) {
+        item.remove(); // Removing item from DOM : traversing the DOM to first get to the parent (the button/icon) --> Then to the parent of the button (the list item)
+
+        removeItemFromStorage(item.textContent)// Removing the item from Local Storage
+
+        checkUI(); // We must use checkUI after removal is approved because we need to override and account for the changes in items.length
+    }
+}
+
+function removeItemFromStorage (item) {
+    let itemsFromStorage = getItemsFromStorage();
+    //Filtering out the item to be removed
+    itemsFromStorage = itemsFromStorage.filter((i) => i !== item); // return a new array with the deleted items REMOVED!!! This should filter out whatever item was passed in.
+
+    // Reset to Local Storage
+    localStorage.setItem("items", JSON.stringify(itemsFromStorage)); // Using key of "items", then using JSON to stringify
 }
 
 function clearItems(e) {
@@ -110,6 +124,9 @@ function clearItems(e) {
 
         checkUI(); // we must use checkUI after removal is approved because we need to override and account for the changes in items.length
     }
+    // Clearing from LocalStorage
+    localStorage.removeItem("items"); // Using "items" key to remove respective key values
+    checkUI();
 }
 
 function filterItems(e) {
@@ -144,7 +161,7 @@ function checkUI() {
 function init() {
     // Event Listeners
     itemForm.addEventListener("submit", onAddItemSubmit); // calling function addItem
-    itemList.addEventListener("click", removeItem); // calling function removeItem
+    itemList.addEventListener("click", onClickItem); // calling function removeItem
     clearButton.addEventListener("click", clearItems); // to clear the items
     itemFilter.addEventListener("input", filterItems); // filter through items
     document.addEventListener("DOMContentLoaded", displayItems);
