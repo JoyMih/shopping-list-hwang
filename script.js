@@ -6,43 +6,36 @@ const clearButton = document.getElementById("clear");
 const itemFilter = document.getElementById("filter");
 
 // Create functions to be used
-function onAddItemSubmit (eventObj) {
+
+function displayItems() {
+    const itemsFromStorage = getItemsFromStorage();
+    itemsFromStorage.forEach((item) => addItemToDOM(item));
+
+    checkUI(); // to make sure we DO display the filter and clear all buttons upon DOM reloading
+}
+
+function onAddItemSubmit(eventObj) {
     eventObj.preventDefault();
 
     const newItem = itemInput.value;
 
     // Setting up Validations for Input
-    if(itemInput.value === "") {
+    if (itemInput.value === "") {
         alert("Please add an item!");
         return; // This is so that nothing else can happen after this if statement alert is triggered.
     }
-        // Create item DOM element
-        addItemToDOM(newItem);
-        // Add item to local storage
-        addItemToStorage(newItem);
+    // Create item DOM element
+    addItemToDOM(newItem);
+    // Add item to local storage
+    addItemToStorage(newItem);
 
-        checkUI();
+    checkUI();
 
-        itemInput.value = ""; // After all of that creation, clear the value (in the text node);
+    itemInput.value = ""; // After all of that creation, clear the value (in the text node);
 }
 
-function addItemToStorage (item) {
-    let itemsFromStorage; // initialize the variable representing the local storage
 
-    if (localStorage.getItem("items") === null) { // Check to see if there are null items
-        itemsFromStorage = []; // If no, set variable to empty array
-    }
-    else { // If yes, parse the string back into array (to its original form in which the code can work with)
-        itemsFromStorage = JSON.parse(localStorage.getItem("items"));
-    }
-    // Add new item to array
-    itemsFromStorage.push(item);
-
-    // Reconvert back into to JSON string & set to local storage!!!
-    localStorage.setItem("items", JSON.stringify(itemsFromStorage));
-}
-
-function addItemToDOM (newItem) {
+function addItemToDOM(newItem) {
     // Create a new list item
     const li = document.createElement("li");
     li.appendChild(document.createTextNode(newItem)); // we want to append what is inside of the inside of the list item, i.e. the newItem (which is inside of a newly created Text Node, which adds text interactivity to this part of the document).
@@ -54,7 +47,7 @@ function addItemToDOM (newItem) {
     const button = createButton("remove-item btn-link text-red"); // call the function in.
 
     li.appendChild(button); // now add the button to the list item.
-    
+
     // Add li to the DOM
     itemList.appendChild(li);// add the list item, li, to the DOM
 }
@@ -76,8 +69,31 @@ function createIcon(classes) {
     return icon; // return the icon!
 }
 
+function addItemToStorage(item) {
+    const itemsFromStorage = getItemsFromStorage(); // initialize the variable representing the local storage
+    // Add new item to array
+
+    itemsFromStorage.push(item);
+
+    // Reconvert back into to JSON string & set to local storage!!!
+    localStorage.setItem("items", JSON.stringify(itemsFromStorage));
+}
+
+// Get/retrieve items from the Local Storage
+function getItemsFromStorage() {
+    let itemsFromStorage; // initialize the variable representing the local storage
+    if (localStorage.getItem("items") === null) { // Check to see if there are null items
+        itemsFromStorage = []; // If no, set variable to empty array
+    }
+    else { // If yes, parse the string back into array (to its original form in which the code can work with)
+        itemsFromStorage = JSON.parse(localStorage.getItem("items"));
+    }
+
+    return itemsFromStorage;
+}
+
 function removeItem(e) {
-    if (e.target.parentElement.classList.contains("remove-item")){ 
+    if (e.target.parentElement.classList.contains("remove-item")) {
         // this will only remove the item that has a parent whose classes (i.e. its classList) contains the specific class of "remove-item", which is the button/icon in this case.
         if (window.confirm("Are you sure you want to Delete?")) {
             e.target.parentElement.parentElement.remove(); // traversing the DOM to first get to the parent (the button/icon) --> Then to the parent of the button (the list item)
@@ -89,7 +105,7 @@ function removeItem(e) {
 
 function clearItems(e) {
     // while the item list has a first child (i.e. the first list item)
-    while (itemList.firstChild) { 
+    while (itemList.firstChild) {
         itemList.removeChild(itemList.firstChild); // using remove Child on the ul, passing in the first child  
 
         checkUI(); // we must use checkUI after removal is approved because we need to override and account for the changes in items.length
@@ -124,10 +140,16 @@ function checkUI() {
     }
 }
 
-// Event Listeners
-itemForm.addEventListener("submit", onAddItemSubmit); // calling function addItem
-itemList.addEventListener("click", removeItem); // calling function removeItem
-clearButton.addEventListener("click", clearItems); // to clear the items
-itemFilter.addEventListener("input", filterItems); // filter through items
+// Function to initialize the app. This can be more advantageous and more clean due to the fact that the variables are encapsulated and NOT made accessible to the global scope anymore (prior to moving in lines 145-152 into a function, this block of code was just exposed to the rest of this document).
+function init() {
+    // Event Listeners
+    itemForm.addEventListener("submit", onAddItemSubmit); // calling function addItem
+    itemList.addEventListener("click", removeItem); // calling function removeItem
+    clearButton.addEventListener("click", clearItems); // to clear the items
+    itemFilter.addEventListener("input", filterItems); // filter through items
+    document.addEventListener("DOMContentLoaded", displayItems);
 
-checkUI();
+    checkUI();
+}
+
+init();
