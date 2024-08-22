@@ -74,6 +74,20 @@ function clearItems(e) {
     }
 }
 
+function filterItems(e) {
+    const text = e.target.value.toLowerCase(); // get the text
+    const items = itemList.querySelectorAll("li") // get the list items (remember, these aren't global)
+    items.forEach((item) => { // use .forEach() since this is a node list
+        const itemName = item.firstChild.textContent.toLowerCase();
+        if (itemName.indexOf(text) != -1) {
+            item.style.display = "flex";
+        }
+        else {
+            item.style.display = "none";
+        }
+    });
+}
+
 // Creating a function to check UI: goal is to check the states of items
 function checkUI() {
     const items = itemList.querySelectorAll("li"); // remember that when you use .querySelectorAll, you get the node list (similar to an array). 
@@ -88,9 +102,10 @@ function checkUI() {
     }
 }
 
-// Set Up the necessary Event Listeners
+// Event Listeners
 itemForm.addEventListener("submit", addItem); // calling function addItem
 itemList.addEventListener("click", removeItem); // calling function removeItem
 clearButton.addEventListener("click", clearItems); // to clear the items
+itemFilter.addEventListener("input", filterItems); // filter through items
 
 checkUI();
