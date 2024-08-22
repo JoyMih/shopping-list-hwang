@@ -6,7 +6,7 @@ const clearButton = document.getElementById("clear");
 const itemFilter = document.getElementById("filter");
 
 // Create functions to be used
-function addItem (eventObj) {
+function onAddItemSubmit (eventObj) {
     eventObj.preventDefault();
 
     const newItem = itemInput.value;
@@ -16,25 +16,47 @@ function addItem (eventObj) {
         alert("Please add an item!");
         return; // This is so that nothing else can happen after this if statement alert is triggered.
     }
-
-    // Create a new list item
-        const li = document.createElement("li");
-        li.appendChild(document.createTextNode(newItem)); // we want to append what is inside of the inside of the list item, i.e. the newItem (which is inside of a newly created Text Node, which adds text interactivity to this part of the document).
-
-        // We want to call on a function that creates a new "delete" icon/button. 
-        // To do this we are going to create a SEPARATE function  outside of this function that generates that button for us called createButton().
-        // Inside the parameters (), we include the classes associated with the very same buttons we have constructed in the HTML document. 
-
-        const button = createButton("remove-item btn-link text-red"); // call the function in.
-
-        li.appendChild(button); // now add the button to the list item.
-        
-        // Add li to the DOM
-        itemList.appendChild(li);// add the list item, li, to the DOM
+        // Create item DOM element
+        addItemToDOM(newItem);
+        // Add item to local storage
+        addItemToStorage(newItem);
 
         checkUI();
 
-        itemInput.value = ""; // after all of that creation, clear the value (in the text node);
+        itemInput.value = ""; // After all of that creation, clear the value (in the text node);
+}
+
+function addItemToStorage (item) {
+    let itemsFromStorage; // initialize the variable representing the local storage
+
+    if (localStorage.getItem("items") === null) { // Check to see if there are null items
+        itemsFromStorage = []; // If no, set variable to empty array
+    }
+    else { // If yes, parse the string back into array (to its original form in which the code can work with)
+        itemsFromStorage = JSON.parse(localStorage.getItem("items"));
+    }
+    // Add new item to array
+    itemsFromStorage.push(item);
+
+    // Reconvert back into to JSON string & set to local storage!!!
+    localStorage.setItem("items", JSON.stringify(itemsFromStorage));
+}
+
+function addItemToDOM (newItem) {
+    // Create a new list item
+    const li = document.createElement("li");
+    li.appendChild(document.createTextNode(newItem)); // we want to append what is inside of the inside of the list item, i.e. the newItem (which is inside of a newly created Text Node, which adds text interactivity to this part of the document).
+
+    // We want to call on a function that creates a new "delete" icon/button. 
+    // To do this we are going to create a SEPARATE function  outside of this function that generates that button for us called createButton().
+    // Inside the parameters (), we include the classes associated with the very same buttons we have constructed in the HTML document. 
+
+    const button = createButton("remove-item btn-link text-red"); // call the function in.
+
+    li.appendChild(button); // now add the button to the list item.
+    
+    // Add li to the DOM
+    itemList.appendChild(li);// add the list item, li, to the DOM
 }
 
 function createButton(classes) {
@@ -103,7 +125,7 @@ function checkUI() {
 }
 
 // Event Listeners
-itemForm.addEventListener("submit", addItem); // calling function addItem
+itemForm.addEventListener("submit", onAddItemSubmit); // calling function addItem
 itemList.addEventListener("click", removeItem); // calling function removeItem
 clearButton.addEventListener("click", clearItems); // to clear the items
 itemFilter.addEventListener("input", filterItems); // filter through items
