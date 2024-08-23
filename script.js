@@ -36,6 +36,12 @@ function onAddItemSubmit(eventObj) {
         itemToEdit.remove(); // Removing the item from the DOM
         isEditMode = false; // Resetting the global variable to false
     }
+    else {
+        if (checkIfItemExists(newItem)) {
+            alert("This item already exists!");
+            return;
+        }
+    }
 
     // Create item DOM element
     addItemToDOM(newItem);
@@ -105,12 +111,17 @@ function getItemsFromStorage() {
     return itemsFromStorage;
 }
 
-function onClickItem(e) {
-    if (e.target.parentElement.classList.contains("remove-item")) {
-        removeItem(e.target.parentElement.parentElement); // This will only remove the item that has a parent whose classes (i.e. its classList) contains the specific class of "remove-item", which is the button/icon in this case.
+function checkIfItemExists(item) {
+    const itemsFromStorage = getItemsFromStorage();
+    return itemsFromStorage.includes(item) // The include method can be used on an array and we can check if an element is included in that array. In addition, this set up returns a boolean anyways, so the need for an if statement is eliminated.
+}
+
+function onClickItem(eventObj) {
+    if (eventObj.target.parentElement.classList.contains("remove-item")) {
+        removeItem(eventObj.target.parentElement.parentElement); // This will only remove the item that has a parent whose classes (i.e. its classList) contains the specific class of "remove-item", which is the button/icon in this case.
     }
     else{
-        setItemToEdit(e.target);
+        setItemToEdit(eventObj.target);
     }
 }
 
@@ -144,7 +155,7 @@ function removeItemFromStorage (item) {
     localStorage.setItem("items", JSON.stringify(itemsFromStorage)); // Using key of "items", then using JSON to stringify
 }
 
-function clearItems(e) {
+function clearItems(eventObj) {
     // while the item list has a first child (i.e. the first list item)
     while (itemList.firstChild) {
         itemList.removeChild(itemList.firstChild); // using remove Child on the ul, passing in the first child  
@@ -156,8 +167,8 @@ function clearItems(e) {
     resetUI();
 }
 
-function filterItems(e) {
-    const text = e.target.value.toLowerCase(); // get the text
+function filterItems(eventObj) {
+    const text = eventObj.target.value.toLowerCase(); // get the text
     const items = itemList.querySelectorAll("li") // get the list items (remember, these aren't global)
     items.forEach((item) => { // use .forEach() since this is a node list
         const itemName = item.firstChild.textContent.toLowerCase();
